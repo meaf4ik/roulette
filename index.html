@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOODEN MECHANISM v2.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:ital@1&display=swap');
+
+        /* Общие стили для создания эффекта досок */
+        .plank-texture {
+            /* Базовый цвет дерева */
+            background-color: #3d2b1f; 
+            /* Рисунок волокон дерева (тонкие линии) */
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.05) 0px,
+                rgba(0,0,0,0.05) 1px,
+                transparent 1px,
+                transparent 10px
+            );
+            /* Горизонтальные швы между досками */
+            border-bottom: 2px solid rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        body {
+            /* Фон страницы — темные, старые доски пола */
+            background-color: #1a1410;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 100%), /* Затемнение */
+                repeating-linear-gradient(0deg, #1a1410 0px, #1a1410 40px, #160f0a 41px, #160f0a 42px); /* Швы досок */
+            color: #d4a373;
+            font-family: 'Lora', serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .machine-body {
+            /* Корпус аппарата — доски корпуса */
+            background-color: #3d2b1f;
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 10px), /* Волокна */
+                repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(0,0,0,0.2) 61px, rgba(0,0,0,0.2) 62px); /* Вертикальные швы досок корпуса */
+            
+            border: 8px solid #2b1d12;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9), inset 0 0 40px rgba(0,0,0,0.6);
+            padding: 40px;
+            border-radius: 12px;
+            width: 360px;
+            position: relative;
+        }
+
+        .slot-window {
+            height: 120px;
+            background: #1a0f08;
+            padding: 10px;
+            border-radius: 4px;
+            border: 4px solid #8e6d45; /* Латунь */
+            overflow: hidden;
+            display: flex;
+            gap: 8px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.9);
+        }
+
+        .reel-container {
+            flex: 1;
+            height: 100%;
+            background: #2b1d12;
+            border: 1px solid #4a3321;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: top 3.5s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        .symbol {
+            height: 90px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            filter: sepia(0.6) contrast(1.1); /* Эффект старины */
+        }
+
+        /* Кнопка как в старых приборах */
+        .lever-btn {
+            background: linear-gradient(180deg, #8e6d45 0%, #5d432c 100%);
+            border: 2px solid #2b1d12;
+            color: #1a0f08;
+            width: 100%;
+            margin-top: 30px;
+            padding: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 0 #2b1d12;
+            border-radius: 4px;
+        }
+
+        .lever-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #2b1d12;
+        }
+
+        .lever-btn:disabled {
+            opacity: 0.7;
+            filter: grayscale(0.5);
+            cursor: wait;
+        }
+
+        .wood-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #8e6d45;
+            margin-bottom: 20px;
+            text-align: center;
+            font-style: italic;
+            border-bottom: 1px solid rgba(142, 109, 69, 0.2);
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="machine-body">
+        <div class="wood-label">Est. 1895 — Antique Mechanism</div>
+        
+        <div class="slot-window">
+            <div class="reel-container"><div class="reel" id="reel1"></div></div>
+            <div class="reel-container"><div class="reel" id="reel2"></div></div>
+            <div class="reel-container"><div class="reel" id="reel3"></div></div>
+        </div>
+
+        <div class="flex justify-around mb-4 bg-[#1a0f08] p-2 border border-[#8e6d45]/30 rounded">
+    <label class="text-[9px] uppercase cursor-pointer">
+        <input type="radio" name="speed" value="5" class="hidden peer">
+        <span class="peer-checked:text-white opacity-40 peer-checked:opacity-100">Медленно</span>
+    </label>
+    <label class="text-[9px] uppercase cursor-pointer">
+        <input type="radio" name="speed" value="3.5" checked class="hidden peer">
+        <span class="peer-checked:text-white opacity-40 peer-checked:opacity-100">Норма</span>
+    </label>
+    <label class="text-[9px] uppercase cursor-pointer">
+        <input type="radio" name="speed" value="1.5" class="hidden peer">
+        <span class="peer-checked:text-white opacity-40 peer-checked:opacity-100">Быстро</span>
+    </label>
+</div>
+
+        <button class="lever-btn" id="spinBtn" onclick="spin()">Запустить механизм</button>
+        
+        <div class="mt-6 text-center">
+            <p id="status" class="text-[10px] italic opacity-50 tracking-widest uppercase">Система в покое</p>
+        </div>
+    </div>
+
+    <script>
+        // Символы: книга, часы, монета, ключ, кубок, компас
+        const all_symbols = ['📖', '🕰️', '🪙', '🗝️', '🏆', '🧭'];
+        const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+        const SYMBOL_HEIGHT = 90;
+
+        function prepareReel(reel) {
+            reel.innerHTML = ''; 
+            for (let i = 0; i < 80; i++) {
+                const div = document.createElement('div');
+                div.className = 'symbol';
+                div.innerText = all_symbols[Math.floor(Math.random() * all_symbols.length)];
+                reel.appendChild(div);
+            }
+            reel.style.transition = 'none';
+            reel.style.top = '0px';
+        }
+
+        reels.forEach(prepareReel);
+
+        function spin() {
+            const btn = document.getElementById('spinBtn');
+            const status = document.getElementById('status');
+            
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            status.innerText = "Механизм запущен...";
+            
+            reels.forEach((reel, index) => {
+                prepareReel(reel);
+
+                setTimeout(() => {
+                    const extraSpins = 4 + Math.floor(Math.random() * 4); 
+                    const finalOffset = Math.floor(Math.random() * all_symbols.length);
+                    const finalPosition = (extraSpins * all_symbols.length + finalOffset) * SYMBOL_HEIGHT;
+
+                    const selectedSpeed = parseFloat(document.querySelector('input[name="speed"]:checked').value);
+
+reels.forEach((reel, index) => {
+    prepareReel(reel);
+
+    setTimeout(() => {
+        const extraSpins = 4 + Math.floor(Math.random() * 4); 
+        const finalOffset = Math.floor(Math.random() * all_symbols.length);
+        const finalPosition = (extraSpins * all_symbols.length + finalOffset) * SYMBOL_HEIGHT;
+
+        // Используем выбранную скорость
+        const spinDuration = selectedSpeed + index * (selectedSpeed * 0.2); 
+
+        reel.style.transition = `top ${spinDuration}s cubic-bezier(0.2, 0, 0.2, 1)`;
+        reel.style.top = `-${finalPosition}px`;
+
+        // РАЗБЛОКИРОВКА КНОПКИ: 
+        // Мы разблокируем её только когда остановится последний (третий) барабан
+        if (index === 2) {
+            // Ждем ровно столько, сколько крутится последний барабан + небольшой запас (200мс)
+            setTimeout(() => {
+                btn.disabled = false;
+                status.innerText = "Система в покое";
+            }, spinDuration * 1000 + 200); 
+        }
+    }, index * 150);
+});
+
+                    reel.style.transition = `top ${spinDuration}s cubic-bezier(0.2, 0, 0.2, 1)`;
+                    reel.style.top = `-${finalPosition}px`;
+
+                    if (index === 2) {
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            status.innerText = "Система в покое";
+                        }, spinDuration * 1000 + 300); 
+                    }
+                }, index * 150);
+            });
+        }
+    </script>
+</body>
+</html>
